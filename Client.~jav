@@ -1,0 +1,85 @@
+import java.io.*;
+import java.net.*;
+
+
+public class Client implements Runnable
+{
+
+   BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in), 1);
+
+
+   Socket           socket;
+   DataInputStream  input;
+   DataOutputStream output;
+
+
+
+   public static void main(String[] args)
+   {
+      Client client = new Client();
+
+      client.init();
+
+   }
+
+
+   public void init()
+   {
+      try
+      {
+         System.out.println("Call Server:");
+
+         socket = new Socket("localhost", 8080);
+
+
+         System.out.println("Preparing input and output lines:");
+
+         output = new DataOutputStream(socket.getOutputStream());
+
+         input = new DataInputStream(socket.getInputStream());
+     }
+     catch(IOException x) { System.out.println("Error Connecting"); }
+
+
+     Thread t = new Thread(this);
+
+     t.start();
+
+
+     try
+     {
+         while(true)
+         {
+            System.out.println("Enter message ->");
+
+            String words = keyboard.readLine();
+
+            output.writeUTF(words);
+         }
+
+      }
+      catch(IOException x) {System.out.println("Error Sending");}
+
+
+
+   }
+
+
+
+   public void run()
+   {
+      while(true)
+      {
+         try
+         {
+            String words = input.readUTF();
+
+            System.out.println(words);
+         }
+         catch(IOException x){ System.out.println("Error Receiving");}
+      }
+
+
+   }
+
+}
